@@ -49,4 +49,5 @@ In `/dist` you'd only have `index.html`, containing:
 - Filenames starting with an `_` underscore will not be saved into destination - similar to partial files in Sass.
 - You can treat the include as a typical element, as it simply injects the partial, i.e.:
 
+
     <span include="_header.html" class="stays-put">GETS REPLACED</span>
