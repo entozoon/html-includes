@@ -29,25 +29,27 @@ Add the script into your `package.json` along the lines of:
 Here is a typical example using the script parameters above
 
 ### src/index.html
-
+```html
     <p>Hello</p>
     <div include="_footer.html"></div>
-
+```
 
 ### src/_footer.html
-
+```html
     <p>Footer stuff</p>
+```
 
 ### RESULT
 In `/dist` you'd only have `index.html`, containing:
-
+```html
     <p>Hello</p>
     <p>Footer stuff</p>
+```
 
 ### Notes
 
 - Filenames starting with an `_` underscore will not be saved into destination - similar to partial files in Sass.
 - You can treat the include as a typical element, as it simply injects the partial, i.e.:
-
-
+```html
     <span include="_header.html" class="stays-put">GETS REPLACED</span>
+```
