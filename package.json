@@ -1,0 +1,14 @@
+{
+  "name": "html-includes",
+  "version": "1.0.0",
+  "description": "Compile your html into a destination folder with partial includes",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MichaelCook.tech",
+  "license": "ISC",
+  "devDependencies": {
+    "node-watch": "^0.5.5"
+  }
+}
