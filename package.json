@@ -1,11 +1,12 @@
 {
   "name": "html-includes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Compile your html into a destination folder with partial includes",
-  "main": "lib/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "./bin/compile.js",
+  "bin": {
+    "html-includes": "bin/run.js"
   },
+  "scripts": {},
   "author": "MichaelCook.tech",
   "license": "ISC",
   "devDependencies": {
