@@ -50,8 +50,11 @@ const compile = args => {
               let pathRelative = path.split('/').slice(0, -1).join('/');
               let includeFilepath = pathRelative + '/' + includeFilename;
 
+              // Remove the include="" attribute and whitespace to some extent
+              contentUpdated = ' ' + matchInclude.replace(regexInclude, '').trim();
+
               // Match the inner content to be replaced
-              contentUpdated = matchInclude.replace(regexInner, match => {
+              contentUpdated = contentUpdated.replace(regexInner, match => {
                 //let content = 'almost there';
                 let content = '';
                 try {
@@ -59,7 +62,6 @@ const compile = args => {
                 } catch (e) {
                   console.log("ERROR  Couldn't find file: " + includeFilepath);
                 }
-
                 return '>' + content + '<';
               });
             });
