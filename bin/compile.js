@@ -4,7 +4,7 @@ const watch = require('node-watch'),
   glob = require('glob');
 
 const options = [
-  { name: 'watch', alias: 'w', type: Boolean },
+  { name: 'watch', alias: 'w', type: String, multiple: true},
   { name: 'src', alias: 's', type: String },
   { name: 'dest', alias: 'd', type: String }
 ];
@@ -95,9 +95,10 @@ const compile = args => {
 compile(args);
 
 // Watch for changes with flag --watch
-if (args.watch) {
+if (typeof(args.watch) != 'undefined') {
+  if(args.watch == null || !args.watch.length) args.watch = args.src;
   watch(
-    args.src,
+    args.watch,
     {
       recursive: true,
       filter: /\.html$/
