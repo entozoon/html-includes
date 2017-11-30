@@ -97,7 +97,7 @@ compile(args);
 // Watch for changes with flag --watch
 if (args.watch) {
   watch(
-    './src/html/',
+    args.src,
     {
       recursive: true,
       filter: /\.html$/
