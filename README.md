@@ -1,5 +1,5 @@
 # HTML Includes
-Commandline HTML compilation with partial includes.
+Commandline HTML compilation with partial includes. Useful for super quick templating, or perhaps bundling things into an iframe.
 
 ## "Aren't there a million of these?"
 Yes. However, they _all_ miss one of the following requirements:
@@ -53,3 +53,4 @@ In `/dist` you'd only have `index.html`, containing:
 ```html
 <span include="_header.html" class="stays-put">GETS REPLACED</span>
 ```
+- Other tags are possible, such as `<script include="_app.js"></script>`, `<style>` etc.

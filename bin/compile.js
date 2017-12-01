@@ -4,7 +4,7 @@ const watch = require('node-watch'),
   glob = require('glob');
 
 const options = [
-  { name: 'watch', alias: 'w', type: String, multiple: true},
+  { name: 'watch', alias: 'w', type: String, multiple: true },
   { name: 'src', alias: 's', type: String },
   { name: 'dest', alias: 'd', type: String }
 ];
@@ -47,7 +47,10 @@ const compile = args => {
             match.replace(/"(.*?)"/, matchIncludeFile => {
               let includeFilename = matchIncludeFile.substring(1, matchIncludeFile.length - 1);
               // Allow relative includes. Are we having fun yet?
-              let pathRelative = path.split('/').slice(0, -1).join('/');
+              let pathRelative = path
+                .split('/')
+                .slice(0, -1)
+                .join('/');
               let includeFilepath = pathRelative + '/' + includeFilename;
 
               // Remove the include="" attribute and whitespace to some extent
@@ -95,13 +98,13 @@ const compile = args => {
 compile(args);
 
 // Watch for changes with flag --watch
-if (typeof(args.watch) != 'undefined') {
-  if(args.watch == null || !args.watch.length) args.watch = args.src;
+if (typeof args.watch != 'undefined') {
+  if (args.watch == null || !args.watch.length) args.watch = args.src;
   watch(
     args.watch,
     {
-      recursive: true,
-      filter: /\.html$/
+      recursive: true
+      // filter: /\.html$/
     },
     function(evnt, file) {
       if (evnt === 'update') {
