@@ -8,7 +8,7 @@
   },
   "scripts": {},
   "author": "MichaelCook.tech",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "node-watch": "^0.5.5",
     "command-line-args": "^4.0.7",
