@@ -1,6 +1,6 @@
 {
   "name": "html-includes",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Compile your html into a destination folder with partial includes",
   "main": "./bin/compile.js",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {},
   "author": "MichaelCook.tech",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "node-watch": "^0.5.5",
     "command-line-args": "^4.0.7",
