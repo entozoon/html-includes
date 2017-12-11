@@ -43,7 +43,7 @@ Here is a typical example using the script parameters above
 In `/dist` you'd only have `index.html`, containing:
 ```html
 <p>Hello</p>
-<p>Footer stuff</p>
+<div ><p>Footer stuff</p></div>
 ```
 
 ### Notes
