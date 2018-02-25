@@ -31,9 +31,11 @@ const compile = args => {
       // <span include="_header.html" class="hello"></span>
       // <include="_header.html"></>
       // <div include="_header.html">Full of junk that gets replaced</div>
-      let regexOuter = / include="(.+)"(.*)>(.*)<\//g; // all occurrences
-      let regexInclude = /include="(.*?)"/; // first occurrence
+      let regexOuter = / (source|include)="(.+)"(.*)>(.*)<\//g; // all occurrences
+      let regexInclude = /(source|include)="(.*?)"/; // first occurrence
       let regexInner = />(.*?)</; // first occurrence
+      let regexReplaceTagStart = /<include[\w\d="' ]*>/g;
+      let regexReplaceTagEnd = /<\/include>/g;
 
       fs.readFile(path, 'utf8', (err, content) => {
         // Match the outer element
@@ -53,7 +55,7 @@ const compile = args => {
                 .join('/');
               let includeFilepath = pathRelative + '/' + includeFilename;
 
-              // Remove the include="" attribute and whitespace to some extent
+              // Remove the include OR source="" attribute and whitespace to some extent
               contentUpdated = ' ' + matchInclude.replace(regexInclude, '').trim();
 
               // Match the inner content to be replaced
@@ -70,9 +72,15 @@ const compile = args => {
             });
           });
 
-          return contentUpdated;
+          return contentUpdated.trim(); // trim so we don't get tags like <div >
         });
-        //console.log(content);
+
+        // Strip out <include> tags
+        content = content
+        .replace(regexReplaceTagStart, '')
+        .replace(regexReplaceTagEnd, '');
+
+        // console.log(content);
 
         // If _partial.html, don't actually output the file
         let filename = path.split('/');
