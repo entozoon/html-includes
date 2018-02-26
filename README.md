@@ -38,33 +38,33 @@ As you can see there are two types of include:
 * `<element include>` - Which retains its given tag and other attributes
 
 ```html
-    <html>
-        <head>
-           <include src="_meta.html"></include>
-        </head>
-        <body>
-            <main><include src="_main.html"></include></main>
-            <footer include src="_footer.html"></footer>
-        </body>
-    </html>
+<html>
+    <head>
+        <include src="_meta.html"></include>
+    </head>
+    <body>
+        <main><include src="_main.html"></include></main>
+        <footer include src="_footer.html"></footer>
+    </body>
+</html>
 ```
 
 ### src/\_meta.html
 
 ```html
-    <meta meta="meta"/>
+<meta meta="meta"/>
 ```
 
 ### src/\_main.html
 
 ```html
-    <p>Main content</p>
+<p>Main content</p>
 ```
 
 ### src/\_footer.html
 
 ```html
-    <p>Footer content</p>
+<p>Footer content</p>
 ```
 
 ### Result
@@ -72,18 +72,17 @@ As you can see there are two types of include:
 In `/dist` you'd only have `index.html`, containing a minified version of:
 
 ```html
-    <html>
-        <head>
-            <meta meta="meta"/>
-        </head>
-        <body>
-            <main><p>Main content</p></main>
-            <footer><p>Footer content</p></footer>
-        </body>
-    </html>
+<html>
+    <head>
+        <meta meta="meta"/>
+    </head>
+    <body>
+        <main><p>Main content</p></main>
+        <footer><p>Footer content</p></footer>
+    </body>
+</html>
 ```
 
 ### Notes
 
 * Filenames starting with an `_` underscore will not be saved into destination - similar to partial files in Sass.
-* You can treat the include as a typical element, as it simply injects the partial, i.e.:

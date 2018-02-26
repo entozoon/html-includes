@@ -1,7 +1,8 @@
 {
   "name": "html-includes",
-  "version": "2.0.0",
-  "description": "Compile your html into a destination folder with partial includes",
+  "version": "2.0.1",
+  "description":
+    "Compile your html into a destination folder with partial includes",
   "main": "./bin/compile.js",
   "repository": {
     "type": "git",
