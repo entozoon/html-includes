@@ -1,6 +1,6 @@
 {
   "name": "html-includes",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description":
     "Compile your html into a destination folder with partial includes",
   "main": "./bin/compile.js",
