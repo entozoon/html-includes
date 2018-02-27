@@ -1,19 +1,38 @@
-const watch = require('node-watch'),
-  commandLineArgs = require('command-line-args'),
-  fs = require('fs'),
-  glob = require('glob');
+const watch = require("node-watch"),
+  commandLineArgs = require("command-line-args"),
+  fs = require("fs"),
+  glob = require("glob"),
+  cheerio = require("cheerio");
 
 const options = [
-  { name: 'watch', alias: 'w', type: String, multiple: true },
-  { name: 'src', alias: 's', type: String },
-  { name: 'dest', alias: 'd', type: String }
+  { name: "watch", alias: "w", type: String, multiple: true },
+  { name: "src", alias: "s", type: String },
+  { name: "dest", alias: "d", type: String }
 ];
 const args = commandLineArgs(options);
+
+const getContent = (path, filename) => {
+  // Allow relative includes. Are we having fun yet?
+  let pathRelative = path
+    .split("/")
+    .slice(0, -1)
+    .join("/");
+  let includeFilepath = pathRelative + "/" + filename;
+
+  let content = "";
+  try {
+    content = fs.readFileSync(includeFilepath, "utf8");
+  } catch (e) {
+    console.log("ERROR  Couldn't find file: " + includeFilepath);
+  }
+
+  return content;
+};
 
 const compile = args => {
   // console.log(args);
 
-  glob(args.src + '/**/*.html', {}, (err, files) => {
+  glob(args.src + "/**/*.html", {}, (err, files) => {
     // console.log(files);
     if (err) {
       console.log(err);
@@ -21,83 +40,72 @@ const compile = args => {
     }
     if (!files) return;
 
-    // Run through each .html file
     files.forEach(path => {
-      // Parse includes! (even in _partial.html files)
-      // ' include="_header.html">[injects here]</'
-      // Match that ^ to allow for anything like:
-      // <div include="_header.html"></div>
-      // <div include="_header.html" ></div>
-      // <span include="_header.html" class="hello"></span>
-      // <include="_header.html"></>
-      // <div include="_header.html">Full of junk that gets replaced</div>
-      let regexOuter = / (source|include)="(.+)"(.*)>(.*)<\//g; // all occurrences
-      let regexInclude = /(source|include)="(.*?)"/; // first occurrence
-      let regexInner = />(.*?)</; // first occurrence
-      let regexReplaceTagStart = /<include[\w\d="' ]*>/g;
-      let regexReplaceTagEnd = /<\/include>/g;
+      console.log("Reading:", path);
+      let content = fs.readFileSync(path, "utf8");
 
-      fs.readFile(path, 'utf8', (err, content) => {
-        // Match the outer element
-        content = content.replace(regexOuter, match => {
-          // Grab the intended filename to include
-          let matchInclude = match;
-
-          let contentUpdated = '';
-          match.replace(regexInclude, match => {
-            // (should _absolutely_ be using promises at this level but nah)
-            match.replace(/"(.*?)"/, matchIncludeFile => {
-              let includeFilename = matchIncludeFile.substring(1, matchIncludeFile.length - 1);
-              // Allow relative includes. Are we having fun yet?
-              let pathRelative = path
-                .split('/')
-                .slice(0, -1)
-                .join('/');
-              let includeFilepath = pathRelative + '/' + includeFilename;
-
-              // Remove the include OR source="" attribute and whitespace to some extent
-              contentUpdated = ' ' + matchInclude.replace(regexInclude, '').trim();
-
-              // Match the inner content to be replaced
-              contentUpdated = contentUpdated.replace(regexInner, match => {
-                //let content = 'almost there';
-                let content = '';
-                try {
-                  content = fs.readFileSync(includeFilepath, 'utf8');
-                } catch (e) {
-                  console.log("ERROR  Couldn't find file: " + includeFilepath);
-                }
-                return '>' + content + '<';
-              });
-            });
-          });
-
-          return contentUpdated.trim(); // trim so we don't get tags like <div >
-        });
-
-        // Strip out <include> tags
-        content = content
-        .replace(regexReplaceTagStart, '')
-        .replace(regexReplaceTagEnd, '');
-
-        // console.log(content);
-
-        // If _partial.html, don't actually output the file
-        let filename = path.split('/');
-        filename = filename[filename.length - 1];
-        if (filename.substring(0, 1) != '_') {
-          // Save the file to dist
-          let filename = path.split('/').pop();
-          let outputFilepath = args.dest + '/' + filename;
-          console.log('Saving: ' + path + '-> ' + outputFilepath);
-
-          fs.writeFile(outputFilepath, content, err => {
-            if (err) {
-              return console.log(err);
-            }
-          });
-        }
+      const $ = cheerio.load(content, {
+        normalizeWhitespace: true,
+        xmlMode: true
       });
+
+      //
+      // <include src="_meta.html"></include>
+      //
+      $("include").replaceWith((i, $element) => {
+        console.log("Including:", $element.attribs.src);
+        return getContent(path, $element.attribs.src);
+      });
+
+      //
+      // <main include src="_content.html"></main>
+      //
+      $("[include]").html("REPLACE CONTENT");
+      $("[include]").each((i, $element) => {
+        return "replaced????";
+      });
+
+      $("[include]").replaceWith((i, $element) => {
+        // console.log($element.name);
+        // console.log($element.attribs);
+
+        // This _should_ be the way to do it, but no dice.
+        // $element.html("REPLACED?");
+        // return $element;
+
+        let attributes = "";
+        for (let key in $element.attribs) {
+          if (!["include", "src"].includes(key)) {
+            attributes += ` ${key}="${$element.attribs[key]}"`;
+          }
+        }
+
+        return `<${$element.name}${attributes}>${getContent(
+          path,
+          $element.attribs.src
+        )}</${$element.name}>`;
+      });
+
+      // // DEBUGGING
+      //   if (path === "src/index.html") {
+      //     console.log($.html());
+      //   }
+
+      // If _partial.html, don't actually output the file
+      let filename = path.split("/");
+      filename = filename[filename.length - 1];
+      if (filename.substring(0, 1) != "_") {
+        // Save the file to dist
+        let filename = path.split("/").pop();
+        let outputFilepath = args.dest + "/" + filename;
+        console.log("Saving: " + path + "-> " + outputFilepath);
+
+        fs.writeFile(outputFilepath, $.html(), err => {
+          if (err) {
+            return console.log(err);
+          }
+        });
+      }
     });
   });
 };
@@ -106,7 +114,7 @@ const compile = args => {
 compile(args);
 
 // Watch for changes with flag --watch
-if (typeof args.watch != 'undefined') {
+if (typeof args.watch != "undefined") {
   if (args.watch == null || !args.watch.length) args.watch = args.src;
   watch(
     args.watch,
@@ -115,7 +123,7 @@ if (typeof args.watch != 'undefined') {
       // filter: /\.html$/
     },
     function(evnt, file) {
-      if (evnt === 'update') {
+      if (evnt === "update") {
         compile(args);
       }
     }
