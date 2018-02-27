@@ -46,7 +46,7 @@ const compile = args => {
 
       const $ = cheerio.load(content, {
         normalizeWhitespace: true,
-        xmlMode: true
+        xmlMode: false
       });
 
       //
