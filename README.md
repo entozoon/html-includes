@@ -29,28 +29,30 @@ Add the script into your `package.json` along the lines of:
 
 ## Use
 
-Here is a typical example using the script parameters above
+Here is a typical example using the script parameters above:
 
-### src/index.html
+#### src/index.html
 
 ```html
 <html>
-    <head>
-        ${require('./_meta.html')}
-    </head>
-    <body>
-        <main>${require('./_main.html')}</main>
-    </body>
+  <head>
+    ${require('./_meta.html')}
+  </head>
+  <body>
+    <main>
+      ${require('./_main.html')}
+    </main>
+  </body>
 </html>
 ```
 
-### src/\_meta.html
+#### src/\_meta.html
 
 ```html
-<meta meta="meta"/>
+<meta meta="meta">
 ```
 
-### src/\_main.html
+#### src/\_main.html
 
 ```html
 <p>Main content</p>
@@ -58,17 +60,17 @@ Here is a typical example using the script parameters above
 
 ### Result
 
-In `/dist` you'd only have `index.html`, containing:
+In `/dist` you'd have simply `index.html`, containing:
 
 ```html
 <html>
 <head>
-    <meta meta="meta">
+  <meta meta="meta">
 </head>
 <body>
-    <main>
-        <p>Main content</p>
-    </main>
+  <main>
+    <p>Main content</p>
+  </main>
 </body>
 </html>
 ```
