@@ -4,13 +4,14 @@ Commandline HTML compilation with partial includes. Useful for super quick templ
 
 ## "Aren't there a million of these?"
 
-Yes. However, they _all_ miss one of the following requirements:
+Yes. However, they _all_ miss at least one of the following requirements:
 
-* No custom Node script necessary; CLI only
-* Glob folder support
-* Watch
-* Relative paths
-* Saving compiled files with ignoreable filenames
+- No webpack necessary
+- Glob folder support
+- Watch
+- Relative paths
+- Minification
+- Saving compiled files with ignoreable filenames
 
 ## Install
 
@@ -19,12 +20,12 @@ Yes. However, they _all_ miss one of the following requirements:
 Add the script into your `package.json` along the lines of:
 
     "scripts": {
-      "compile:html": "html-includes --src src --dest dist --watch"
+      "compile": "html-includes --src src --dest dist"
     },
 
 ## Run
 
-    npm run compile:html
+    npm run compile
 
 ## Use
 
@@ -32,19 +33,13 @@ Here is a typical example using the script parameters above
 
 ### src/index.html
 
-As you can see there are two types of include:
-
-* `<include>` - Which has its entire tag replaced
-* `<element include>` - Which retains its given tag and other attributes
-
 ```html
 <html>
     <head>
-        <include src="_meta.html"></include>
+        ${require('./_meta.html')}
     </head>
     <body>
-        <main><include src="_main.html"></include></main>
-        <footer include src="_footer.html"></footer>
+        <main>${require('./_main.html')}</main>
     </body>
 </html>
 ```
@@ -61,28 +56,36 @@ As you can see there are two types of include:
 <p>Main content</p>
 ```
 
-### src/\_footer.html
-
-```html
-<p>Footer content</p>
-```
-
 ### Result
 
-In `/dist` you'd only have `index.html`, containing a minified version of:
+In `/dist` you'd only have `index.html`, containing:
 
 ```html
 <html>
-    <head>
-        <meta meta="meta"/>
-    </head>
-    <body>
-        <main><p>Main content</p></main>
-        <footer><p>Footer content</p></footer>
-    </body>
+<head>
+    <meta meta="meta">
+</head>
+<body>
+    <main>
+        <p>Main content</p>
+    </main>
+</body>
 </html>
 ```
 
+Or with the `--minify` flag, you'd get:
+
+```html
+<html><head><meta meta="meta"></head><body><main><p>Main content</p></main></body></html>
+```
+
+## Options
+
+| Flag                        | Description                                                                                                                                          | Default                |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `--minify`                  | Enable Minification of HTML                                                                                                                          | false                  |
+| `--minify option=[boolean]` | Set any of the boolean options in https://github.com/kangax/html-minifier#options-quick-reference - for example `--minify conservativeCollapse=true` | Various typical values |
+
 ### Notes
 
-* Filenames starting with an `_` underscore will not be saved into destination - similar to partial files in Sass.
+- Filenames starting with an `_` underscore will not be saved into destination (in the style of partial files in Sass).

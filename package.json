@@ -1,8 +1,7 @@
 {
   "name": "html-includes",
-  "version": "2.1.0",
-  "description":
-    "Compile your html into a destination folder with partial includes",
+  "version": "3.0.0",
+  "description": "Compile your html into a destination folder with partial includes",
   "main": "./bin/compile.js",
   "repository": {
     "type": "git",
@@ -15,9 +14,11 @@
   "author": "MichaelCook.tech",
   "license": "MIT",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
     "command-line-args": "^4.0.7",
     "glob": "^7.1.2",
+    "html-loader": "^0.5.5",
+    "html-minifier": "^3.5.16",
+    "loader-utils": "^1.1.0",
     "node-watch": "^0.5.5",
     "shelljs": "^0.7.8"
   }
