@@ -91,8 +91,7 @@ const compile = args => {
 
         let root = path.split("/");
         root.pop();
-        root.join("/");
-        root += "/";
+        root = root.join("/") + "/";
 
         let filePath = root + data[match];
         // console.log(filePath);
