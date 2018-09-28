@@ -12,6 +12,7 @@ Yes. However, they _all_ miss at least one of the following requirements:
 - Relative paths
 - Minification
 - Saving compiled files with ignoreable filenames
+- Passing parameters to includes, like props to a component
 
 ## Install
 
@@ -40,7 +41,7 @@ Here is a typical example using the script parameters above:
   </head>
   <body>
     <main>
-      ${require('./_main.html')}
+      ${require('./_main.html') foo="and you can also pass props"}
     </main>
   </body>
 </html>
@@ -55,7 +56,7 @@ Here is a typical example using the script parameters above:
 #### src/\_main.html
 
 ```html
-<p>Main content</p>
+<p>Main content ${props.foo}</p>
 ```
 
 ### Result
@@ -69,7 +70,7 @@ In `/dist` you'd have simply `index.html`, containing:
 </head>
 <body>
   <main>
-    <p>Main content</p>
+    <p>Main content and you can also pass props</p>
   </main>
 </body>
 </html>
@@ -85,7 +86,7 @@ Or with the `--minify` flag, you'd get:
 
 | Flag                        | Description                                                                                                                                          | Default                |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| `--watch`                  | Watch for file changes                                                                                                                          | false                  |
+| `--watch`                   | Watch for file changes                                                                                                                               | false                  |
 | `--minify`                  | Enable Minification of HTML                                                                                                                          | false                  |
 | `--minify option=[boolean]` | Set any of the boolean options in https://github.com/kangax/html-minifier#options-quick-reference - for example `--minify conservativeCollapse=true` | Various typical values |
 

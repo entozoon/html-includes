@@ -1,6 +1,7 @@
 const watch = require("node-watch"),
   commandLineArgs = require("command-line-args"),
   fs = require("fs"),
+  fse = require("fs-extra"),
   glob = require("glob"),
   htmlMinifier = require("html-minifier");
 //   cheerio = require("cheerio")
@@ -58,10 +59,11 @@ const compile = args => {
       // Replace all ${require('./_foo.html')}
       // style occurrences with a random string
       var data = {};
-      var reg = /\$\{require\([^)]*\)\}/g;
+      var reg = /\$\{require\([^)]*\)[^}]*\}/g;
       //   console.log(reg.exec(content));
       var result;
       var reqList = [];
+      let props = {};
       while ((result = reg.exec(content))) {
         reqList.push({
           length: result[0].length,
@@ -76,10 +78,21 @@ const compile = args => {
         do {
           var ident = randomIdent();
         } while (data[ident]);
-        data[ident] = link.value.substring(11, link.length - 3);
+        // data[ident] = link.value.substring(11, link.length - 3);
+        // Sprinkling some myke magic to allow flexibility for adding other attributes as params
+        data[ident] = /\([^)]*\)/g.exec(link.value)[0].slice(2, -2);
         content.push(x.substr(link.start + link.length));
         content.push(ident);
         content.push(x.substr(0, link.start));
+        // Get any prop values
+        // [ 'foo="bar"', 'baz="jizz"' ]
+        let propList = link.value.match(/\b([^\s]+)(="(^'|^"|[^\s]+)*")/gi);
+        if (propList) {
+          propList.forEach(prop => {
+            let pair = prop.split("=");
+            props[pair[0]] = pair[1].substring(1, pair[1].length - 1);
+          });
+        }
       });
       content.reverse();
       content = content.join("");
@@ -94,9 +107,17 @@ const compile = args => {
         root = root.join("/") + "/";
 
         let filePath = root + data[match];
-        // console.log(filePath);
 
         return fs.readFileSync(filePath, "utf8");
+      });
+
+      content = content.replace(/\$\{props.[^}]+\}/g, match => {
+        // Sometimes I like the way I code; KISS Method
+        let propKey = match.substring(
+          "${props.".length,
+          match.length - "}".length
+        );
+        return props[propKey] ? props[propKey] : "";
       });
 
       //
@@ -135,12 +156,13 @@ const compile = args => {
       filename = filename[filename.length - 1];
       if (filename.substring(0, 1) != "_") {
         // Save the file to dist
-        let filename = path.split("/").pop();
-        let outputFilepath = args.dest + "/" + filename;
+        console.log(path.substring(args.src.length));
+        // let filename = path.split("/").pop();
+        let filename = path.substring(args.src.length);
+        let outputFilepath = args.dest + filename;
         console.log("Saving: " + path + "-> " + outputFilepath);
 
-        // fs.writeFile(outputFilepath, $.html(), err => {
-        fs.writeFile(outputFilepath, content, err => {
+        fse.outputFile(outputFilepath, content, err => {
           if (err) {
             return console.log(err);
           }
