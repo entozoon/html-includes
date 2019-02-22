@@ -4,14 +4,12 @@ const watch = require("node-watch"),
   fse = require("fs-extra"),
   glob = require("glob"),
   htmlMinifier = require("html-minifier");
-//   cheerio = require("cheerio")
-//   htmlLoader = require("html-loader")
-//   loaderUtils = require("loader-utils");
 
+// Grab CLI arguments
 const options = [
   { name: "watch", alias: "w", type: String, multiple: true },
-  { name: "src", alias: "s", type: String },
-  { name: "dest", alias: "d", type: String },
+  { name: "src", alias: "s", type: String, defaultValue: "src" },
+  { name: "dest", alias: "d", type: String, defaultValue: "dist" },
   { name: "minify", alias: "m", type: String, multiple: true }
 ];
 const args = commandLineArgs(options);
@@ -60,7 +58,6 @@ const compile = args => {
       // style occurrences with a random string
       var data = {};
       var reg = /\$\{require\([^)]*\)[^}]*\}/g;
-      //   console.log(reg.exec(content));
       var result;
       var reqList = [];
       let props = {};
@@ -78,7 +75,6 @@ const compile = args => {
         do {
           var ident = randomIdent();
         } while (data[ident]);
-        // data[ident] = link.value.substring(11, link.length - 3);
         // Sprinkling some myke magic to allow flexibility for adding other attributes as params
         data[ident] = /\([^)]*\)/g.exec(link.value)[0].slice(2, -2);
         content.push(x.substr(link.start + link.length));
@@ -157,7 +153,6 @@ const compile = args => {
       if (filename.substring(0, 1) != "_") {
         // Save the file to dist
         console.log(path.substring(args.src.length));
-        // let filename = path.split("/").pop();
         let filename = path.substring(args.src.length);
         let outputFilepath = args.dest + filename;
         console.log("Saving: " + path + "-> " + outputFilepath);
