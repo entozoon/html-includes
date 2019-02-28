@@ -165,7 +165,31 @@ const compile = args => {
 
     //
     // MINIFICATION
-    //
+    // --minify
+    let minimizeOptions = false;
+    if (typeof args.minify != "undefined") {
+      minimizeOptions = {
+        removeComments: true,
+        removeCommentsFromCDATA: true,
+        removeCDATASectionsFromCDATA: true,
+        collapseWhitespace: true,
+        conservativeCollapse: false,
+        removeAttributeQuotes: false,
+        useShortDoctype: true,
+        keepClosingSlash: true,
+        minifyJS: false,
+        minifyCSS: true,
+        removeScriptTypeAttributes: true,
+        removeStyleTypeAttribute: true
+      };
+      // --minify foo bar
+      if (args.minify && args.minify.length) {
+        args.minify.forEach(arg => {
+          arg = arg.split("=");
+          minimizeOptions[arg[0]] = arg[1] == "false" ? false : true;
+        });
+      }
+    }
 
     //
     // WRITE TO DIST
@@ -179,6 +203,10 @@ const compile = args => {
         let filename = file.path.substring(args.src.length);
         let outputFilePath = args.dest + filename;
         console.log("Saving: " + file.path + "-> " + outputFilePath);
+
+        file.content = minimizeOptions
+          ? htmlMinifier.minify(file.content, minimizeOptions)
+          : file.content;
 
         fse.outputFile(outputFilePath, file.content, err => {
           if (err) {
