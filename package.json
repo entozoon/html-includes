@@ -10,7 +10,9 @@
   "bin": {
     "html-includes": "bin/run.js"
   },
-  "scripts": {},
+  "scripts": {
+    "dev": "cd ../../ && nodemon node_modules/html-includes/bin/compile"
+  },
   "author": "MichaelCook.tech",
   "license": "MIT",
   "dependencies": {

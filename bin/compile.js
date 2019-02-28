@@ -5,8 +5,10 @@ const watch = require("node-watch"),
   glob = require("glob"),
   htmlMinifier = require("html-minifier"),
   regexInclude = /\$\{require\([^)]*\)[^}]*\}/g,
-  // regexIncludePath = /\$\{require\((^\))+\)/g,
-  regexIncludePath = /\${require\(\'(.*?)\'\)/,
+  // regexIncludeRel = /\$\{requireRel\([^)]*\)[^}]*\}/g,
+  // regexIncludeFilePath = /\$\{require\((^\))+\)/g,
+  regexIncludeFilePath = /\${require\(\'(.*?)\'\)/,
+  regexFilesId = /\${filesId\((.*?)\)\}/,
   maxNestedDepth = 99;
 
 // Grab CLI arguments
@@ -24,13 +26,13 @@ const args = commandLineArgs(options);
 //     .split("/")
 //     .slice(0, -1)
 //     .join("/");
-//   let includeFilepath = pathRelative + "/" + filename;
+//   let includeFilePath = pathRelative + "/" + filename;
 
 //   let content = "";
 //   try {
-//     content = fs.readFileSync(includeFilepath, "utf8");
+//     content = fs.readFileSync(includeFilePath, "utf8");
 //   } catch (e) {
-//     console.log("ERROR  Couldn't find file: " + includeFilepath);
+//     console.log("ERROR  Couldn't find file: " + includeFilePath);
 //   }
 
 //   return content;
@@ -38,6 +40,43 @@ const args = commandLineArgs(options);
 
 const randomIdent = () =>
   "xxxHTMLLINKxxx" + Math.random() + Math.random() + "xxx";
+
+// // e.g. ("./_sub.html", "src/index.html",) => "..../src/./_sub.html"
+// const getRelativeFilePath = (fileRequest, fileCurrent) => {
+//   console.log(fileRequest, fileCurrent);
+//   // Absolute -> rel (why not, eh?)
+//   if (fileRequest.substring(0, 1) == "/")
+//     return __dirname + "/../../../" + args.src + fileRequest;
+//   let dir = fileCurrent.split("/");
+//   dir.pop();
+//   dir = dir.join("/");
+//   return __dirname + "/../../../" + dir + "/" + fileRequest;
+// };
+
+// // e.g. ("./_sub.html", "src/index.html",) => "..../src/./_sub.html"
+const getFilesId = (fileRequest, fileCurrent, files) => {
+  let path;
+  if (fileRequest.substring(0, 1) == "/") {
+    // Absolute
+    path = args.src + fileRequest;
+  } else {
+    // Rel
+    let dir = fileCurrent.split("/");
+    dir.pop();
+    dir = dir.join("/");
+    path =
+      dir +
+      "/" +
+      (fileRequest.substring(0, 2) == `./`
+        ? fileRequest.substring(2)
+        : fileRequest);
+  }
+  // Get matching entry from files array
+  let filez = files.filter(f => f.path == path);
+  // console.log(fileRequest, fileCurrent, " => ", path);
+  // console.log(filez[0] ? filez[0].id : "NOT FOUND");
+  return filez[0] ? filez[0].id : null;
+};
 
 const compile = args => {
   console.log("\033[2J");
@@ -50,34 +89,104 @@ const compile = args => {
     if (!files) return;
 
     // Grab contents from aaall the things, i.e. get the lead out
-    files = files.map(path => {
-      return { path, content: fs.readFileSync(path, "utf8") };
+    files = files.map((path, i) => {
+      return { id: i, path, content: fs.readFileSync(path, "utf8") };
     });
 
     // Try and support nested includes, here we go!
+    // let noMoreJobs = false,
+    //   loopCount = 0;
+    // // Whip round all the files, replacing any ${require()} with ${requireRel()} full path
+    // while (!noMoreJobs && loopCount < maxNestedDepth) {
+    //   noMoreJobs = true; // hopeful
+    //   files = files.map(file => {
+    //     if (file.content.match(regexInclude)) {
+    //       noMoreJobs = false; // ah well, press on
+    //       file.content = file.content.replace(regexInclude, require => {
+    //         let includeFilePath = getRelativeFilePath(
+    //           require.match(regexIncludeFilePath)[1],
+    //           file.path
+    //         );
+    //         return "${requireRel('" + includeFilePath + "')}";
+    //       });
+    //     }
+    //     return file;
+    //   });
+    //   loopCount++;
+    // }
     let noMoreJobs = false,
       loopCount = 0;
+    // Whip round all the files, replacing any ${require()} with ${requireRel()} full path
     while (!noMoreJobs && loopCount < maxNestedDepth) {
       noMoreJobs = true; // hopeful
       files = files.map(file => {
         if (file.content.match(regexInclude)) {
-          noMoreJobs = false; // ah well
+          noMoreJobs = false; // ah well, press on
           file.content = file.content.replace(regexInclude, require => {
-            console.log("");
-            // console.log(file.path); // use this
-            // and this..
-            console.log(require.match(regexIncludePath));
-
-            // Replace with it's relative file while shoving in any props
-            return "hello";
+            let filesId = getFilesId(
+              require.match(regexIncludeFilePath)[1],
+              file.path,
+              files
+            );
+            return "${filesId(" + filesId + ")}";
           });
         }
         return file;
       });
       loopCount++;
     }
-    console.log("");
-    console.log(files);
+    // Whip round the files once again, injecting content
+    noMoreJobs = false;
+    loopCount = 0;
+    while (!noMoreJobs && loopCount < maxNestedDepth) {
+      noMoreJobs = true; // hopeful
+      files = files.map(file => {
+        if (file.content.match(regexFilesId)) {
+          noMoreJobs = false; // ah well, press on
+          file.content = file.content.replace(regexFilesId, require => {
+            // Replace with it's relative file while shoving in any props *************
+            // let includeFilePath = require.match(regexIncludeFilePathRel)[1];
+            // console.log(includeFilePath);
+            let filesId = require.match(regexFilesId)[1];
+            // Get content from (mutated) files array (preeeetty sure it must exist)
+            let filesContent = files.filter(f => f.id == filesId)[0].content;
+            // return require;
+            return filesContent;
+          });
+        }
+        return file;
+      });
+      loopCount++;
+    }
+
+    //
+    // PROPS
+    //
+
+    //
+    // MINIFICATION
+    //
+
+    //
+    // WRITE TO DIST
+    //
+    // If _partial.html, don't actually output the file
+    files.forEach(file => {
+      let filename = file.path.split("/");
+      filename = filename[filename.length - 1];
+      if (filename.substring(0, 1) != "_") {
+        // Save the file to dist
+        let filename = file.path.substring(args.src.length);
+        let outputFilePath = args.dest + filename;
+        console.log("Saving: " + file.path + "-> " + outputFilePath);
+
+        fse.outputFile(outputFilePath, file.content, err => {
+          if (err) {
+            return console.log(err);
+          }
+        });
+      }
+    });
 
     // files.forEach(path => {
     //   console.log("Reading:", path);
@@ -186,10 +295,10 @@ const compile = args => {
     //     // Save the file to dist
     //     console.log(path.substring(args.src.length));
     //     let filename = path.substring(args.src.length);
-    //     let outputFilepath = args.dest + filename;
-    //     console.log("Saving: " + path + "-> " + outputFilepath);
+    //     let outputFilePath = args.dest + filename;
+    //     console.log("Saving: " + path + "-> " + outputFilePath);
 
-    //     fse.outputFile(outputFilepath, content, err => {
+    //     fse.outputFile(outputFilePath, content, err => {
     //       if (err) {
     //         return console.log(err);
     //       }
