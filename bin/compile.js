@@ -51,8 +51,6 @@ const getFilesId = (fileRequest, fileCurrent, files) => {
 };
 
 const compile = args => {
-  console.log("\033[2J");
-
   glob(args.src + "/**/*.html", {}, (err, files) => {
     if (err) {
       console.log(err);
