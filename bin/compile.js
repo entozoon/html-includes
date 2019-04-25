@@ -72,11 +72,8 @@ const compile = args => {
         if (file.content.match(regexInclude)) {
           noMoreJobs = false; // ah well, press on
           file.content = file.content.replace(regexInclude, require => {
-            let filesId = getFilesId(
-              require.match(regexIncludeFilePath)[1],
-              file.path,
-              files
-            );
+            let requirePath = require.match(regexIncludeFilePath)[1],
+              filesId = getFilesId(requirePath, file.path, files);
             //
             // PROPS Passing
             //
@@ -84,6 +81,13 @@ const compile = args => {
             // [ 'foo="bar"', 'baz="jizz"' ]
             let propsAttrs = require.match(regexPropAttrs);
             // console.log(propsAttrs);
+
+            if (filesId === null) {
+              console.error(
+                `\n FILE MISSING: ${requirePath} (requested by ${file.path})\n`
+              );
+            }
+
             return (
               "${filesId(" +
               filesId +
@@ -108,7 +112,12 @@ const compile = args => {
           file.content = file.content.replace(regexFilesId, require => {
             let filesId = require.match(regexFilesId)[1];
             // Get content from (mutated) files array (preeeetty sure it must exist)
-            let filesContent = files.filter(f => f.id == filesId)[0].content;
+            let _file = files.filter(f => f.id == filesId)[0];
+            if (!_file) {
+              // Shouldn't get to this point, it'll error in block above, but just in case end it
+              return;
+            }
+            let filesContent = _file.content;
             //
             // PROPS Injection
             //
