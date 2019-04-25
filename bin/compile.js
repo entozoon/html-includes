@@ -43,6 +43,26 @@ const getFilesId = (fileRequest, fileCurrent, files) => {
         ? fileRequest.substring(2)
         : fileRequest);
   }
+
+  // Resolve any parent selectors, e.g:
+  // src/component/../../_above.html
+  // _above.html
+  let split = path.split("/");
+  while (split.includes("..")) {
+    split.forEach((s, i) => {
+      if (s === "..") {
+        if (i == 0) {
+          console.error(
+            `\n SORRY: Cannot include a file above the main directory\n`
+          );
+          split.splice(i, 1); // erroring it out of the while loop
+        }
+        split.splice(i - 1, 2);
+      }
+    });
+  }
+  path = split.join("/");
+
   // Get matching entry from files array
   let filez = files.filter(f => f.path == path);
   // console.log(fileRequest, fileCurrent, " => ", path);
