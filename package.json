@@ -20,7 +20,7 @@
     "fs-extra": "^7.0.0",
     "glob": "^7.1.2",
     "html-loader": "^0.5.5",
-    "html-minifier": "^3.5.16",
+    "html-minifier": "^4.0.0",
     "loader-utils": "^1.1.0",
     "node-watch": "^0.5.5",
     "shelljs": "^0.7.8"
