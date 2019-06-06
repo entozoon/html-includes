@@ -23,6 +23,6 @@
     "html-minifier": "^3.5.16",
     "loader-utils": "^1.1.0",
     "node-watch": "^0.5.5",
-    "shelljs": "^0.7.8"
+    "shelljs": "^0.8.3"
   }
 }
