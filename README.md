@@ -30,7 +30,7 @@ Add the script into your `package.json` along the lines of:
 
 ## Use
 
-Here is a typical example using the script parameters above:
+There is an [example project](https://github.com/entozoon/html-includes-example) to look at but put simply, here is how you'd use the script parameters above:
 
 #### src/index.html
 
