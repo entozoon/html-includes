@@ -21,8 +21,11 @@ Yes. However, they _all_ miss at least one of the following requirements:
 Add the script into your `package.json` along the lines of:
 
     "scripts": {
-      "compile": "html-includes --src src --dest dist"
+      "compile": "html-includes --src src --dest dist",
+      "compile:min": "html-includes --src src --dest dist --minify"
     },
+
+See [options](https://github.com/entozoon/html-includes#options) below for more options.
 
 ## Run
 
@@ -50,7 +53,7 @@ There is an [example project](https://github.com/entozoon/html-includes-example)
 #### src/\_meta.html
 
 ```html
-<meta meta="meta">
+<meta meta="meta" />
 ```
 
 #### src/\_main.html
@@ -65,21 +68,28 @@ In `/dist` you'd have simply `index.html`, containing:
 
 ```html
 <html>
-<head>
-  <meta meta="meta">
-</head>
-<body>
-  <main>
-    <p>Main content and you can also pass props</p>
-  </main>
-</body>
+  <head>
+    <meta meta="meta" />
+  </head>
+  <body>
+    <main>
+      <p>Main content and you can also pass props</p>
+    </main>
+  </body>
 </html>
 ```
 
 Or with the `--minify` flag, you'd get:
 
 ```html
-<html><head><meta meta="meta"></head><body><main><p>Main content</p></main></body></html>
+<html>
+  <head>
+    <meta meta="meta" />
+  </head>
+  <body>
+    <main><p>Main content</p></main>
+  </body>
+</html>
 ```
 
 ## Options
