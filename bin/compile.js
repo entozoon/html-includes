@@ -228,7 +228,7 @@ const compile = (args) => {
 // Run on init
 compile(args);
 
-// Watch for changes with flag --watch
+// Watch for changes with flag of --watch
 if (typeof args.watch != "undefined") {
   if (args.watch == null || !args.watch.length) args.watch = args.src;
   watch(

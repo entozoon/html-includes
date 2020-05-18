@@ -7,4 +7,5 @@ let args = "";
 if (process.argv) {
   args = process.argv.splice(2).join(" ");
 }
+
 shell.exec("node " + cd + "compile.js " + args);
