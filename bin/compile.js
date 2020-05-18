@@ -18,7 +18,7 @@ const options = [
   { name: "watch", alias: "w", type: String, multiple: true },
   { name: "src", alias: "s", type: String, defaultValue: "src" },
   { name: "dest", alias: "d", type: String, defaultValue: "dist" },
-  { name: "minify", alias: "m", type: String, multiple: true }
+  { name: "minify", alias: "m", type: String, multiple: true },
 ];
 const args = commandLineArgs(options);
 
@@ -64,13 +64,13 @@ const getFilesId = (fileRequest, fileCurrent, files) => {
   path = split.join("/");
 
   // Get matching entry from files array
-  let filez = files.filter(f => f.path == path);
+  let filez = files.filter((f) => f.path == path);
   // console.log(fileRequest, fileCurrent, " => ", path);
   // console.log(filez[0] ? filez[0].id : "NOT FOUND");
   return filez[0] ? filez[0].id : null;
 };
 
-const compile = args => {
+const compile = (args) => {
   glob(args.src + "/**/*.html", {}, (err, files) => {
     if (err) {
       console.log(err);
@@ -88,10 +88,10 @@ const compile = args => {
     // Whip round all the files, replacing any ${require()} with ${requireRel()} full path
     while (!noMoreJobs && loopCount < maxNestedDepth) {
       noMoreJobs = true; // hopeful
-      files = files.map(file => {
+      files = files.map((file) => {
         if (file.content.match(regexInclude)) {
           noMoreJobs = false; // ah well, press on
-          file.content = file.content.replace(regexInclude, require => {
+          file.content = file.content.replace(regexInclude, (require) => {
             let requirePath = require.match(regexIncludeFilePath)[1],
               filesId = getFilesId(requirePath, file.path, files);
             //
@@ -126,13 +126,13 @@ const compile = args => {
     loopCount = 0;
     while (!noMoreJobs && loopCount < maxNestedDepth) {
       noMoreJobs = true; // hopeful
-      files = files.map(file => {
+      files = files.map((file) => {
         if (file.content.match(regexFilesId)) {
           noMoreJobs = false; // ah well, press on
-          file.content = file.content.replace(regexFilesId, require => {
+          file.content = file.content.replace(regexFilesId, (require) => {
             let filesId = require.match(regexFilesId)[1];
             // Get content from (mutated) files array (preeeetty sure it must exist)
-            let _file = files.filter(f => f.id == filesId)[0];
+            let _file = files.filter((f) => f.id == filesId)[0];
             if (!_file) {
               // Shouldn't get to this point, it'll error in block above, but just in case end it
               return;
@@ -146,12 +146,12 @@ const compile = args => {
             if (propsAttrs) {
               let props = [];
               // Convert props into a usable array
-              propsAttrs.forEach(prop => {
+              propsAttrs.forEach((prop) => {
                 let pair = prop.split("=");
                 props[pair[0]] = pair[1].substring(1, pair[1].length - 1);
               });
               // Replace any prop usages in the content with the passed prop
-              filesContent = filesContent.replace(regexPropUsage, match => {
+              filesContent = filesContent.replace(regexPropUsage, (match) => {
                 // Sometimes I like the way I code; KISS Method
                 let propKey = match.substring(
                   "${props.".length,
@@ -187,11 +187,11 @@ const compile = args => {
         minifyJS: false,
         minifyCSS: true,
         removeScriptTypeAttributes: true,
-        removeStyleTypeAttribute: true
+        removeStyleTypeAttribute: true,
       };
       // --minify foo bar
       if (args.minify && args.minify.length) {
-        args.minify.forEach(arg => {
+        args.minify.forEach((arg) => {
           arg = arg.split("=");
           minimizeOptions[arg[0]] = arg[1] == "false" ? false : true;
         });
@@ -202,7 +202,7 @@ const compile = args => {
     // WRITE TO DIST
     //
     // If _partial.html, don't actually output the file
-    files.forEach(file => {
+    files.forEach((file) => {
       let filename = file.path.split("/");
       filename = filename[filename.length - 1];
       if (filename.substring(0, 1) != "_") {
@@ -215,7 +215,7 @@ const compile = args => {
           ? htmlMinifier.minify(file.content, minimizeOptions)
           : file.content;
 
-        fse.outputFile(outputFilePath, file.content, err => {
+        fse.outputFile(outputFilePath, file.content, (err) => {
           if (err) {
             return console.log(err);
           }
@@ -234,10 +234,10 @@ if (typeof args.watch != "undefined") {
   watch(
     args.watch,
     {
-      recursive: true
+      recursive: true,
       // filter: /\.html$/
     },
-    function(evnt, file) {
+    function (evnt, file) {
       if (evnt === "update") {
         compile(args);
       }
