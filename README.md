@@ -99,6 +99,7 @@ Or with the `--minify` flag, you'd get:
 | `--watch`                   | Watch for file changes                                                                                                                               | false                  |
 | `--minify`                  | Enable Minification of HTML                                                                                                                          | false                  |
 | `--minify option=[boolean]` | Set any of the boolean options in https://github.com/kangax/html-minifier#options-quick-reference - for example `--minify conservativeCollapse=true` | Various typical values |
+| `--quiet`                   | Silence successful save logs                                                                                                                         | false                  |
 
 ### Notes
 
