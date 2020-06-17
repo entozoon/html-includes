@@ -19,6 +19,7 @@ const options = [
   { name: "src", alias: "s", type: String, defaultValue: "src" },
   { name: "dest", alias: "d", type: String, defaultValue: "dist" },
   { name: "minify", alias: "m", type: String, multiple: true },
+  { name: "quiet", alias: "q", type: String, defaultValue: false }
 ];
 const args = commandLineArgs(options);
 
@@ -209,7 +210,9 @@ const compile = (args) => {
         // Save the file to dist
         let filename = file.path.substring(args.src.length);
         let outputFilePath = args.dest + filename;
-        console.log("Saving: " + file.path + "-> " + outputFilePath);
+        if (args.quiet === false) {
+          console.log("Saving: " + file.path + "-> " + outputFilePath);
+        }
 
         file.content = minimizeOptions
           ? htmlMinifier.minify(file.content, minimizeOptions)
