@@ -10,6 +10,8 @@ Yes. However, they _all_ miss at least one of the following requirements:
 - Glob folder support
 - Watch
 - Relative paths
+- Nested includes
+- Filetypes other than .html, e.g. .js
 - Minification
 - Saving compiled files with ignoreable filenames
 - Passing parameters to includes, like props to a component
@@ -33,7 +35,7 @@ See [options](https://github.com/entozoon/html-includes#options) below for more 
 
 ## Use
 
-There is an [example project](https://github.com/entozoon/html-includes-example) to look at but put simply, here is how you'd use the script parameters above:
+There is an [example project here](https://github.com/entozoon/html-includes-example) with more features but put simply, here is how you'd use the script parameters above:
 
 #### src/index.html
 
@@ -41,6 +43,9 @@ There is an [example project](https://github.com/entozoon/html-includes-example)
 <html>
   <head>
     ${require('./_meta.html')}
+    <script>
+      ${require('./_script.js')}
+    </script>
   </head>
   <body>
     <main>
@@ -54,6 +59,12 @@ There is an [example project](https://github.com/entozoon/html-includes-example)
 
 ```html
 <meta meta="meta" />
+```
+
+#### src/\_script.js
+
+```js
+console.log("Hello World!");
 ```
 
 #### src/\_main.html
@@ -70,6 +81,9 @@ In `/dist` you'd have simply `index.html`, containing:
 <html>
   <head>
     <meta meta="meta" />
+    <script>
+      console.log("Hello World!");
+    </script>
   </head>
   <body>
     <main>

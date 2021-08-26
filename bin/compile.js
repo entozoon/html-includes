@@ -19,7 +19,7 @@ const options = [
   { name: "src", alias: "s", type: String, defaultValue: "src" },
   { name: "dest", alias: "d", type: String, defaultValue: "dist" },
   { name: "minify", alias: "m", type: String, multiple: true },
-  { name: "quiet", alias: "q", type: String, defaultValue: false }
+  { name: "quiet", alias: "q", type: String, defaultValue: false },
 ];
 const args = commandLineArgs(options);
 
@@ -27,7 +27,7 @@ const randomIdent = () =>
   "xxxHTMLLINKxxx" + Math.random() + Math.random() + "xxx";
 
 // // e.g. ("./_sub.html", "src/index.html",) => "..../src/./_sub.html"
-const getFilesId = (fileRequest, fileCurrent, files) => {
+const getFilesId = (fileRequest, fileCurrent, filesHtml) => {
   let path;
   if (fileRequest.substring(0, 1) == "/") {
     // Absolute
@@ -65,36 +65,47 @@ const getFilesId = (fileRequest, fileCurrent, files) => {
   path = split.join("/");
 
   // Get matching entry from files array
-  let filez = files.filter((f) => f.path == path);
+  let filez = filesHtml.filter((f) => f.path == path);
   // console.log(fileRequest, fileCurrent, " => ", path);
   // console.log(filez[0] ? filez[0].id : "NOT FOUND");
   return filez[0] ? filez[0].id : null;
 };
 
 const compile = (args) => {
-  glob(args.src + "/**/*.html", {}, (err, files) => {
+  glob(args.src + "/**/*", { ignore: "**/node_modules/**/*" }, (err, files) => {
     if (err) {
       console.log(err);
       return;
     }
-    if (!files) return;
 
-    // Grab contents from aaall the things, i.e. get the lead out
-    files = files.map((path, i) => {
-      return { id: i, path, content: fs.readFileSync(path, "utf8") };
+    // Set IDs for files
+    files = files.map((path, id) => {
+      return {
+        id,
+        path,
+      };
     });
+    let filesHtml = files.filter(({ path }) => path.substr(-5) === ".html");
+    // Grab contents from aaall the (html) things, i.e. get the lead out
+    filesHtml = filesHtml.map((f) => {
+      f.content = fs.readFileSync(f.path, "utf8");
+      return f;
+    });
+    if (!filesHtml) return;
 
     let noMoreJobs = false,
       loopCount = 0;
     // Whip round all the files, replacing any ${require()} with ${requireRel()} full path
     while (!noMoreJobs && loopCount < maxNestedDepth) {
       noMoreJobs = true; // hopeful
-      files = files.map((file) => {
+      filesHtml = filesHtml.map((file) => {
         if (file.content.match(regexInclude)) {
           noMoreJobs = false; // ah well, press on
           file.content = file.content.replace(regexInclude, (require) => {
-            let requirePath = require.match(regexIncludeFilePath)[1],
-              filesId = getFilesId(requirePath, file.path, files);
+            let requirePath = require.match(regexIncludeFilePath)[1];
+            // console.log({ requirePath, f: file.path, files });
+
+            let filesId = getFilesId(requirePath, file.path, files);
             //
             // PROPS Passing
             //
@@ -127,15 +138,20 @@ const compile = (args) => {
     loopCount = 0;
     while (!noMoreJobs && loopCount < maxNestedDepth) {
       noMoreJobs = true; // hopeful
-      files = files.map((file) => {
+      filesHtml = filesHtml.map((file) => {
         if (file.content.match(regexFilesId)) {
           noMoreJobs = false; // ah well, press on
           file.content = file.content.replace(regexFilesId, (require) => {
             let filesId = require.match(regexFilesId)[1];
             // Get content from (mutated) files array (preeeetty sure it must exist)
+            // console.log(filesHtml);
             let _file = files.filter((f) => f.id == filesId)[0];
+            // If content isn't loaded, it's probably not a .html file so let's straight up read and inject
+            if (!_file.content) {
+              return fs.readFileSync(_file.path, "utf8");
+            }
             if (!_file) {
-              // Shouldn't get to this point, it'll error in block above, but just in case end it
+              // Shouldn't get to this point, it'll error in block above, but JIC bitch out
               return;
             }
             let filesContent = _file.content;
@@ -203,7 +219,7 @@ const compile = (args) => {
     // WRITE TO DIST
     //
     // If _partial.html, don't actually output the file
-    files.forEach((file) => {
+    filesHtml.forEach((file) => {
       let filename = file.path.split("/");
       filename = filename[filename.length - 1];
       if (filename.substring(0, 1) != "_") {
