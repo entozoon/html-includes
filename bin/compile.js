@@ -146,13 +146,13 @@ const compile = (args) => {
             // Get content from (mutated) files array (preeeetty sure it must exist)
             // console.log(filesHtml);
             let _file = files.filter((f) => f.id == filesId)[0];
-            // If content isn't loaded, it's probably not a .html file so let's straight up read and inject
-            if (!_file.content) {
-              return fs.readFileSync(_file.path, "utf8");
-            }
             if (!_file) {
               // Shouldn't get to this point, it'll error in block above, but JIC bitch out
               return;
+            }
+            // If content isn't loaded, it's probably not a .html file so let's straight up read and inject
+            if (!_file.content) {
+              return fs.readFileSync(_file.path, "utf8");
             }
             let filesContent = _file.content;
             //
