@@ -164,7 +164,8 @@ const compile = (args) => {
               let props = [];
               // Convert props into a usable array
               propsAttrs.forEach((prop) => {
-                let pair = prop.split("=");
+                // Split string by only the first = character
+                let pair = prop.split(/=(.+)/);
                 props[pair[0]] = pair[1].substring(1, pair[1].length - 1);
               });
               // Replace any prop usages in the content with the passed prop
