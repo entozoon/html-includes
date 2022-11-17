@@ -6,15 +6,15 @@ Commandline HTML compilation with partial includes. Useful for super quick templ
 
 Yes. However, they _all_ miss at least one of the following requirements:
 
-- No webpack necessary
-- Glob folder support
-- Watch
-- Relative paths
-- Nested includes
-- Filetypes other than .html, e.g. .js
-- Minification
-- Saving compiled files with ignoreable filenames
-- Passing parameters to includes, like props to a component
+-   No webpack necessary
+-   Glob folder support
+-   Watch
+-   Relative paths
+-   Nested includes
+-   Filetypes other than .html, e.g. .js
+-   Minification
+-   Saving compiled files with ignoreable filenames
+-   Passing parameters to includes, like props to a component
 
 ## Install
 
@@ -41,17 +41,17 @@ There is an [example project here](https://github.com/entozoon/html-includes-exa
 
 ```html
 <html>
-  <head>
-    ${require('./_meta.html')}
-    <script>
-      ${require('./_script.js')}
-    </script>
-  </head>
-  <body>
-    <main>
-      ${require('./_main.html') foo="and you can also pass props"}
-    </main>
-  </body>
+    <head>
+        ${require('./_meta.html')}
+        <script>
+            ${require('./_script.js')}
+        </script>
+    </head>
+    <body>
+        <main>
+            ${require('./_main.html') foo=`and you can also pass props`}
+        </main>
+    </body>
 </html>
 ```
 
@@ -79,17 +79,17 @@ In `/dist` you'd have simply `index.html`, containing:
 
 ```html
 <html>
-  <head>
-    <meta meta="meta" />
-    <script>
-      console.log("Hello World!");
-    </script>
-  </head>
-  <body>
-    <main>
-      <p>Main content and you can also pass props</p>
-    </main>
-  </body>
+    <head>
+        <meta meta="meta" />
+        <script>
+            console.log("Hello World!");
+        </script>
+    </head>
+    <body>
+        <main>
+            <p>Main content and you can also pass props</p>
+        </main>
+    </body>
 </html>
 ```
 
@@ -97,12 +97,12 @@ Or with the `--minify` flag, you'd get:
 
 ```html
 <html>
-  <head>
-    <meta meta="meta" />
-  </head>
-  <body>
-    <main><p>Main content</p></main>
-  </body>
+    <head>
+        <meta meta="meta" />
+    </head>
+    <body>
+        <main><p>Main content</p></main>
+    </body>
 </html>
 ```
 
@@ -119,4 +119,4 @@ Or with the `--minify` flag, you'd get:
 
 ### Notes
 
-- Filenames starting with an `_` underscore will not be saved into destination (in the style of partial files in Sass).
+-   Filenames starting with an `_` underscore will not be saved into destination (in the style of partial files in Sass).

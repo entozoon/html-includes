@@ -9,7 +9,7 @@ const watch = require("node-watch"),
   // regexIncludeFilePath = /\$\{require\((^\))+\)/g,
   regexIncludeFilePath = /\${require\(\'(.*?)\'\)/,
   regexFilesId = /\${filesId\((.*?)\)[^}]*\}/,
-  regexPropAttrs = /\b([^\s]+)="[^\"]*"/gi,
+  regexPropAttrs = /\b([^\s]+)=`[^\`]*`/gi,
   regexPropUsage = /\$\{props.[^}]+\}/g,
   maxNestedDepth = 99;
 
@@ -161,12 +161,14 @@ const compile = (args) => {
             // Get props inline attributes
             let propsAttrs = require.match(regexPropAttrs);
             if (propsAttrs) {
-              let props = [];
               // Convert props into a usable array
+              let props = [];
               propsAttrs.forEach((prop) => {
-                // Split string by only the first = character
-                let pair = prop.split(/=(.+)/);
-                props[pair[0]] = pair[1].substring(1, pair[1].length - 1);
+                // "prop2=`foo` -> [ prop2: "foo" ]
+                let key = prop.match(/(.+?)=(.+)/)[1];
+                // Remove all backticks `
+                props[key] = prop.replace(`${key}=`, "").replace(/`/g, "");
+                // props[pair[0]] = pair[1].replace(/`/g, '')
               });
               // Replace any prop usages in the content with the passed prop
               filesContent = filesContent.replace(regexPropUsage, (match) => {
